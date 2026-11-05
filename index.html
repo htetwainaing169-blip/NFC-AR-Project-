@@ -1,170 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>MMBS AR Camera</title>
-
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080b11"><title>MMBS • AR Camera</title>
 <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
 <style>
-* {box-sizing:border-box}
-html,body {margin:0;width:100%;height:100%;overflow:hidden;background:#080a0d;font-family:Arial,sans-serif;color:#fff}
-a-scene {position:fixed!important;inset:0!important;width:100%!important;height:100%!important}
-.glass {background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 8px 30px rgba(0,0,0,.12)}
-.top {position:fixed;top:calc(env(safe-area-inset-top) + 16px);left:16px;right:16px;z-index:100;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
-.brand {display:flex;align-items:center;gap:10px;border-radius:22px;padding:8px 13px;pointer-events:auto}
-.brand img {width:72px;background:#fff;border-radius:7px}
-.brand span {font-size:12px;font-weight:bold;letter-spacing:2px;line-height:1.5}
-.menu {color:#fff;text-decoration:none;padding:15px;border-radius:50%;pointer-events:auto}
-.status {position:fixed;z-index:100;top:20%;left:50%;transform:translateX(-50%);padding:13px 18px;border-radius:30px;font-size:12px;white-space:nowrap;text-align:center}
-.scan {position:fixed;z-index:20;width:72vw;height:54vw;max-height:40vh;left:50%;top:49%;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,.4);border-radius:22px;pointer-events:none}
-.bottom {position:fixed;z-index:100;bottom:calc(env(safe-area-inset-bottom) + 35px);left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:20px}
-.hint {padding:12px 18px;border-radius:28px;font-size:13px;text-align:center}
-.shutter {width:75px;height:75px;border:4px solid #fff;border-radius:50%;background:rgba(255,255,255,.15);padding:6px;opacity:.55}
-.shutter:after {content:"";display:block;width:100%;height:100%;background:#fff;border-radius:50%}
-.footer {font-size:11px;color:#ddd}
-.footer a {color:white}
-</style>
-</head>
-<body>
-
-<a-scene
-  mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no;"
-  color-space="sRGB"
-  renderer="colorManagement: true; physicallyCorrectLights: true; alpha: true"
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false"
-  embedded>
-
-  <a-assets timeout="30000">
-    <img id="firstFrame" src="./print-image.png">
-  </a-assets>
-
-  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-  <a-entity id="target" mindar-image-target="targetIndex: 0">
-    <a-plane
-      id="animationPlane"
-      position="0 0 0.01"
-      width="1"
-      height="0.75"
-      material="shader: flat; transparent: true; side: double">
-    </a-plane>
-  </a-entity>
-
+:root{font-family:system-ui,-apple-system,Arial,sans-serif;color:white;color-scheme:dark}*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#080b11}#arScene{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;z-index:0}#arScene canvas{display:block!important}video[data-mindar-video],video.mindar-video{object-fit:cover!important} .glass{background:linear-gradient(135deg,rgba(255,255,255,.23),rgba(255,255,255,.065));border:1px solid rgba(255,255,255,.48);backdrop-filter:blur(13px) saturate(1.35);-webkit-backdrop-filter:blur(13px) saturate(1.35);box-shadow:inset 0 1px rgba(255,255,255,.22),0 8px 28px rgba(0,0,0,.17)}#ui{position:fixed;inset:0;pointer-events:none;z-index:20}button,a{font:inherit}button{cursor:pointer;color:inherit}#top{position:absolute;top:max(16px,env(safe-area-inset-top));left:14px;right:14px;display:flex;align-items:center;justify-content:space-between;gap:8px}.brand{border-radius:22px;padding:7px 12px 7px 7px;display:flex;gap:9px;align-items:center}.brand img{width:70px;background:#fff;border-radius:9px}.brand strong{font-size:11px;letter-spacing:1.6px;line-height:1.5}.round{width:48px;height:48px;border-radius:18px;border:1px solid rgba(255,255,255,.48);font-size:20px}#status{position:absolute;top:19%;left:50%;transform:translateX(-50%);border-radius:99px;padding:10px 16px;white-space:nowrap;font-size:11px;letter-spacing:.9px;max-width:94vw;overflow:hidden;text-overflow:ellipsis}#frame{position:absolute;top:49%;left:50%;transform:translate(-50%,-50%);width:75vw;aspect-ratio:4/3;max-height:42vh;border:1px solid rgba(255,255,255,.4);border-radius:24px;box-shadow:0 0 0 999px rgba(0,0,0,.04);transition:opacity .2s}#bottom{position:absolute;bottom:max(22px,env(safe-area-inset-bottom));left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:13px}.mode{display:flex;border-radius:99px;padding:4px;gap:3px}.mode button{background:none;border:0;border-radius:99px;padding:10px 27px;font-size:12px;letter-spacing:1px}.mode button.active{background:rgba(255,255,255,.83);color:#111;font-weight:800}.controls{width:100%;max-width:360px;display:flex;align-items:center;justify-content:space-around}.mini{width:49px;height:49px;border-radius:17px;border:1px solid rgba(255,255,255,.42);font-size:22px}.shutter{width:76px;height:76px;border:4px solid white;border-radius:50%;background:rgba(255,255,255,.18);padding:6px}.shutter:before{content:"";display:block;width:100%;height:100%;background:white;border-radius:50%;transition:.2s}.shutter.recording:before{background:#f04456;border-radius:13px;transform:scale(.64)}#help{font-size:11px;max-width:90%;text-align:center;text-shadow:0 1px 5px #000}#menu{position:absolute;right:14px;top:77px;padding:15px;border-radius:20px;display:none;max-width:250px;font-size:13px}#menu a{color:white}#menu p{line-height:1.5}#overlay{position:fixed;inset:0;z-index:40;background:rgba(8,11,17,.88);display:flex;align-items:center;justify-content:center;padding:22px}#intro{width:min(420px,100%);padding:26px;border-radius:28px;text-align:center}#intro img{width:165px;background:white;border-radius:12px;padding:7px}#intro h1{font-size:24px;margin:18px 0 8px}#intro p{font-size:14px;line-height:1.6;color:#e2e5e9}#start{background:#fff;color:#111;border:0;border-radius:16px;padding:15px 28px;font-weight:800;width:100%;margin-top:12px}#error{color:#ffd5d5;overflow-wrap:anywhere;font-size:12px}#preview{position:fixed;inset:0;z-index:50;background:#080b11;display:none;flex-direction:column;justify-content:center;align-items:center;gap:18px;padding:20px}#preview img,#preview video{max-width:100%;max-height:68vh;object-fit:contain;border-radius:14px}#preview .actions{display:flex;gap:12px}#preview button,#preview a{padding:13px 20px;border-radius:16px;text-decoration:none;color:white}.tap{pointer-events:auto}#hintBanner{position:absolute;top:25%;width:100%;text-align:center;font-size:12px;opacity:.85}
+</style></head><body>
+<a-scene id="arScene" mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no;" renderer="colorManagement: true; alpha: true; preserveDrawingBuffer: true;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded>
+<a-assets timeout="30000"><video id="artVideo" src="./animation.mp4" preload="auto" loop muted playsinline webkit-playsinline crossorigin="anonymous"></video></a-assets>
+<a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+<a-entity id="target" mindar-image-target="targetIndex: 0"><a-video id="artPlane" src="#artVideo" width="1" height="0.75" position="0 0 0.01" material="shader: flat; side: double; transparent: false"></a-video></a-entity>
 </a-scene>
-
-<div class="top">
-  <div class="brand glass">
-    <img src="./mmbs-logo.jpg" alt="MMBS">
-    <span>GLASS AR<br>CAMERA</span>
-  </div>
-  <a class="menu glass"
-    href="https://jiliomonm-wq.github.io/htet-wai-naing-portfolio1/"
-    target="_blank" rel="noopener">☰</a>
-</div>
-
-<div class="status glass" id="status">LOADING AR...</div>
-<div class="scan" id="scan"></div>
-
-<div class="bottom">
-  <div class="hint glass" id="hint">Allow camera access to scan artwork</div>
-  <button class="shutter" disabled aria-label="Capture coming soon"></button>
-  <div class="footer">
-    MMBS AR EXPERIENCE ·
-    <a href="https://jiliomonm-wq.github.io/htet-wai-naing-portfolio1/">Developer</a>
-  </div>
-</div>
-
+<div id="ui"><div id="top"><div class="brand glass"><img src="./mmbs-logo.jpg" alt="MMBS logo"><strong>LIQUID GLASS<br>AR CAMERA</strong></div><button id="menuBtn" class="round glass tap" aria-label="Menu">☰</button></div><div id="menu" class="glass tap"><p>MMBS AR Studio</p><a href="https://jiliomonm-wq.github.io/htet-wai-naing-portfolio1/" target="_blank" rel="noopener">Contact Developer ↗</a><p>No QR code • NFC-ready URL</p></div><div id="status" class="glass">TAP START TO ENABLE CAMERA</div><div id="frame"></div><div id="bottom"><div class="mode glass tap"><button id="photoMode" class="active">PHOTO</button><button id="videoMode">VIDEO</button></div><div class="controls"><button id="gallery" class="mini glass tap" aria-label="Open last capture">▣</button><button id="shutter" class="shutter tap" aria-label="Capture"></button><button id="switchCamera" class="mini glass tap" aria-label="Switch camera">↻</button></div><div id="help">Point your camera at the printed artwork</div></div></div>
+<div id="overlay"><div id="intro" class="glass"><img src="./mmbs-logo.jpg" alt="MMBS"><h1>Bring your print to life</h1><p>Allow camera access, then point at the printed artwork. Take photos or record your AR experience.</p><button id="start">OPEN AR CAMERA</button><p id="error"></p></div></div>
+<div id="preview"><div id="previewMedia"></div><div class="actions"><a id="save" class="glass" download>Save / Download</a><button id="closePreview" class="glass">Back to Camera</button></div><small>On iPhone, use Share → Save Video / Save Image if needed.</small></div>
 <script>
-const statusEl = document.getElementById("status");
-const hintEl = document.getElementById("hint");
-const scanEl = document.getElementById("scan");
-const scene = document.querySelector("a-scene");
-const target = document.getElementById("target");
-
-function setStatus(text) {
-  statusEl.textContent = text;
-}
-
-window.addEventListener("error", e => {
-  setStatus("ERROR: " + (e.message || "Unknown error"));
-});
-
-window.addEventListener("unhandledrejection", e => {
-  setStatus("ERROR: " + (e.reason?.message || "AR initialization failed"));
-});
-
-scene.addEventListener("loaded", () => {
-  setStatus("STARTING CAMERA...");
-});
-
-scene.addEventListener("arReady", () => {
-  setStatus("SCAN PRINTED ARTWORK");
-  hintEl.textContent = "Point camera at the printed image";
-});
-
-scene.addEventListener("arError", () => {
-  setStatus("AR CAMERA ERROR");
-  hintEl.textContent = "Check camera permission and refresh";
-});
-
-target.addEventListener("targetFound", () => {
-  setStatus("AR TRACKING ACTIVE");
-  hintEl.textContent = "Artwork is alive!";
-  scanEl.style.opacity = "0";
-});
-
-target.addEventListener("targetLost", () => {
-  setStatus("SEARCHING FOR ARTWORK");
-  hintEl.textContent = "Point camera at the printed image";
-  scanEl.style.opacity = "1";
-});
-
-async function setupAnimation() {
-  try {
-    const response = await fetch("./animation.gif");
-    if (!response.ok) throw new Error("animation.gif not found");
-
-    const blob = await response.blob();
-    const bitmap = await createImageBitmap(blob);
-
-    const canvas = document.createElement("canvas");
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
-
-    const ctx = canvas.getContext("2d");
-    const plane = document.getElementById("animationPlane");
-
-    const texture = new AFRAME.THREE.CanvasTexture(canvas);
-    texture.colorSpace = AFRAME.THREE.SRGBColorSpace;
-
-    plane.addEventListener("object3dset", () => {
-      const mesh = plane.getObject3D("mesh");
-      if (mesh) {
-        mesh.material.map = texture;
-        mesh.material.needsUpdate = true;
-      }
-    });
-
-    function update() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(bitmap, 0, 0);
-      texture.needsUpdate = true;
-      requestAnimationFrame(update);
-    }
-
-    update();
-
-  } catch (err) {
-    console.error(err);
-    hintEl.textContent = "Animation error: " + err.message;
-  }
-}
-
-setupAnimation();
-</script>
-</body>
-</html>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),scene=$('arScene'),target=$('target'),art=$('artVideo');
+let mode='photo',recording=false,recorder=null,chunks=[],lastURL=null,lastType='',captureCanvas=null,captureCtx=null,captureTimer=null,mediaStream=null,started=false,found=false;
+const status=s=>{$('status').textContent=s};const error=e=>{console.error(e);status('AR ERROR');$('error').textContent=e?.message||String(e);$('overlay').style.display='flex'};
+$('menuBtn').onclick=()=>{$('menu').style.display=$('menu').style.display==='block'?'none':'block'};
+$('photoMode').onclick=()=>{if(recording)return;mode='photo';$('photoMode').classList.add('active');$('videoMode').classList.remove('active')};
+$('videoMode').onclick=()=>{if(recording)return;mode='video';$('videoMode').classList.add('active');$('photoMode').classList.remove('active')};
+scene.addEventListener('arReady',()=>status('SCAN PRINTED ARTWORK'));
+scene.addEventListener('arError',()=>error(new Error('AR camera failed. Check camera permission and HTTPS.')));
+target.addEventListener('targetFound',()=>{found=true;status('AR TRACKING ACTIVE');$('frame').style.opacity='0';art.play().catch(()=>{});});
+target.addEventListener('targetLost',()=>{found=false;status('SCAN PRINTED ARTWORK');$('frame').style.opacity='1';art.pause()});
+$('start').onclick=async()=>{try{$('start').disabled=true;$('error').textContent='';status('STARTING CAMERA...');await art.play().catch(()=>{});art.pause();const ar=scene.systems['mindar-image-system'];if(!ar)throw new Error('MindAR library did not load');await ar.start();started=true;$('overlay').style.display='none';status('SCAN PRINTED ARTWORK')}catch(e){$('start').disabled=false;error(e)}};
+function findCamera(){const vids=[...document.querySelectorAll('video')].filter(v=>v!==art&&v.readyState>=2&&v.videoWidth>0);return vids.find(v=>v.srcObject)||vids[0]}
+function findARCanvas(){return scene.renderer?.domElement||scene.querySelector('canvas')}
+function makeCapture(){const v=findCamera(),c=findARCanvas();if(!v||!c)throw new Error('Camera not ready. Try again after camera starts.');const w=720,h=Math.round(720*window.innerHeight/window.innerWidth);if(!captureCanvas){captureCanvas=document.createElement('canvas');captureCtx=captureCanvas.getContext('2d',{alpha:false})}captureCanvas.width=w;captureCanvas.height=h;return {v,c,w,h}}
+function drawCapture(){const {v,c,w,h}=makeCapture();captureCtx.fillStyle='#080b11';captureCtx.fillRect(0,0,w,h);const ratio=Math.max(w/v.videoWidth,h/v.videoHeight),dw=v.videoWidth*ratio,dh=v.videoHeight*ratio;captureCtx.drawImage(v,(w-dw)/2,(h-dh)/2,dw,dh);captureCtx.drawImage(c,0,0,w,h);return captureCanvas}
+function preview(blob,type){if(lastURL)URL.revokeObjectURL(lastURL);lastURL=URL.createObjectURL(blob);lastType=type;const host=$('previewMedia');host.replaceChildren();const el=document.createElement(type.startsWith('video')?'video':'img');el.src=lastURL;if(type.startsWith('video')){el.controls=true;el.playsInline=true}host.append(el);$('save').href=lastURL;$('save').download='MMBS-AR-'+Date.now()+(type.startsWith('video')?(type.includes('mp4')?'.mp4':'.webm'):'.png');$('preview').style.display='flex'}
+$('closePreview').onclick=()=>{$('preview').style.display='none';$('previewMedia').replaceChildren()};$('gallery').onclick=()=>{if(lastURL){$('preview').style.display='flex'}else $('help').textContent='Take a photo or video first'};
+$('shutter').onclick=async()=>{if(!started)return status('OPEN CAMERA FIRST');if(mode==='photo'){try{const canvas=drawCapture();canvas.toBlob(b=>b?preview(b,'image/png'):status('PHOTO FAILED'),'image/png')}catch(e){status(e.message)}return}if(recording){recorder.stop();return}try{const canvas=drawCapture();const types=['video/mp4;codecs=h264','video/webm;codecs=vp9','video/webm'];const mime=types.find(t=>MediaRecorder.isTypeSupported(t));if(!mime)throw new Error('Video recording not supported in this browser');mediaStream=canvas.captureStream(24);chunks=[];recorder=new MediaRecorder(mediaStream,{mimeType:mime,videoBitsPerSecond:2500000});recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};recorder.onstop=()=>{recording=false;$('shutter').classList.remove('recording');clearInterval(captureTimer);mediaStream.getTracks().forEach(t=>t.stop());if(chunks.length)preview(new Blob(chunks,{type:mime}),mime);else status('RECORDING FAILED')};recorder.start(250);recording=true;$('shutter').classList.add('recording');status('● RECORDING');captureTimer=setInterval(()=>{try{drawCapture()}catch(e){console.warn(e)}},40)}catch(e){status('RECORD ERROR');$('help').textContent=e.message}};
+$('switchCamera').onclick=()=>{$('help').textContent='Camera switching requires restarting AR with another camera; not enabled yet.'};
+window.addEventListener('unhandledrejection',e=>console.error('AR promise:',e.reason));
+})();
+</script></body></html>
