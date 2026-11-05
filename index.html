@@ -1,362 +1,170 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>MMBS AR Camera</title>
 
+<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
 <style>
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: #080b0e;
-  color: white;
-  font-family: Arial, sans-serif;
-  overflow: hidden;
-}
-
-#ar-container {
-  position: fixed;
-  inset: 0;
-}
-
-#ar-container canvas {
-  display: block;
-}
-
-.glass {
-  background: rgba(255,255,255,.10);
-  border: 1px solid rgba(255,255,255,.32);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 6px 30px rgba(0,0,0,.15);
-}
-
-.header {
-  position: fixed;
-  top: max(18px, env(safe-area-inset-top));
-  left: 16px;
-  right: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 10;
-  pointer-events: none;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 13px;
-  border-radius: 22px;
-  pointer-events: auto;
-}
-
-.brand img {
-  width: 68px;
-  background: white;
-  border-radius: 7px;
-}
-
-.brand span {
-  font-size: 12px;
-  letter-spacing: 2px;
-  font-weight: bold;
-}
-
-.settings {
-  color: white;
-  text-decoration: none;
-  padding: 15px;
-  border-radius: 50%;
-  pointer-events: auto;
-}
-
-.status {
-  position: fixed;
-  top: 19%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  padding: 12px 18px;
-  border-radius: 30px;
-  white-space: nowrap;
-  font-size: 12px;
-  letter-spacing: 1px;
-  text-align: center;
-}
-
-.scanner {
-  position: fixed;
-  width: 72vw;
-  height: 54vw;
-  max-height: 40vh;
-  left: 50%;
-  top: 49%;
-  transform: translate(-50%, -50%);
-  border: 1px solid rgba(255,255,255,.3);
-  border-radius: 22px;
-  pointer-events: none;
-  z-index: 5;
-  box-shadow: 0 0 40px rgba(255,255,255,.05);
-}
-
-.bottom {
-  position: fixed;
-  bottom: max(35px, env(safe-area-inset-bottom));
-  left: 0;
-  right: 0;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-}
-
-.hint {
-  padding: 12px 20px;
-  border-radius: 25px;
-  font-size: 13px;
-  text-align: center;
-}
-
-.shutter {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  border: 4px solid white;
-  background: rgba(255,255,255,.18);
-  padding: 6px;
-}
-
-.shutter::after {
-  content: "";
-  display: block;
-  width: 100%;
-  height: 100%;
-  background: white;
-  border-radius: 50%;
-}
-
-.footer {
-  font-size: 11px;
-  opacity: .8;
-}
-
-.footer a {
-  color: white;
-}
+* {box-sizing:border-box}
+html,body {margin:0;width:100%;height:100%;overflow:hidden;background:#080a0d;font-family:Arial,sans-serif;color:#fff}
+a-scene {position:fixed!important;inset:0!important;width:100%!important;height:100%!important}
+.glass {background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.top {position:fixed;top:calc(env(safe-area-inset-top) + 16px);left:16px;right:16px;z-index:100;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+.brand {display:flex;align-items:center;gap:10px;border-radius:22px;padding:8px 13px;pointer-events:auto}
+.brand img {width:72px;background:#fff;border-radius:7px}
+.brand span {font-size:12px;font-weight:bold;letter-spacing:2px;line-height:1.5}
+.menu {color:#fff;text-decoration:none;padding:15px;border-radius:50%;pointer-events:auto}
+.status {position:fixed;z-index:100;top:20%;left:50%;transform:translateX(-50%);padding:13px 18px;border-radius:30px;font-size:12px;white-space:nowrap;text-align:center}
+.scan {position:fixed;z-index:20;width:72vw;height:54vw;max-height:40vh;left:50%;top:49%;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,.4);border-radius:22px;pointer-events:none}
+.bottom {position:fixed;z-index:100;bottom:calc(env(safe-area-inset-bottom) + 35px);left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:20px}
+.hint {padding:12px 18px;border-radius:28px;font-size:13px;text-align:center}
+.shutter {width:75px;height:75px;border:4px solid #fff;border-radius:50%;background:rgba(255,255,255,.15);padding:6px;opacity:.55}
+.shutter:after {content:"";display:block;width:100%;height:100%;background:#fff;border-radius:50%}
+.footer {font-size:11px;color:#ddd}
+.footer a {color:white}
 </style>
 </head>
-
 <body>
 
-<div id="ar-container"></div>
+<a-scene
+  mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no; uiScanning: no;"
+  color-space="sRGB"
+  renderer="colorManagement: true; physicallyCorrectLights: true; alpha: true"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
+  embedded>
 
-<header class="header">
+  <a-assets timeout="30000">
+    <img id="firstFrame" src="./print-image.png">
+  </a-assets>
+
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+  <a-entity id="target" mindar-image-target="targetIndex: 0">
+    <a-plane
+      id="animationPlane"
+      position="0 0 0.01"
+      width="1"
+      height="0.75"
+      material="shader: flat; transparent: true; side: double">
+    </a-plane>
+  </a-entity>
+
+</a-scene>
+
+<div class="top">
   <div class="brand glass">
     <img src="./mmbs-logo.jpg" alt="MMBS">
     <span>GLASS AR<br>CAMERA</span>
   </div>
-
-  <a class="settings glass"
-     href="https://jiliomonm-wq.github.io/htet-wai-naing-portfolio1/"
-     target="_blank" rel="noopener">
-    ☰
-  </a>
-</header>
-
-<div class="status glass" id="status">
-  INITIALIZING AR...
+  <a class="menu glass"
+    href="https://jiliomonm-wq.github.io/htet-wai-naing-portfolio1/"
+    target="_blank" rel="noopener">☰</a>
 </div>
 
-<div class="scanner" id="scanner"></div>
+<div class="status glass" id="status">LOADING AR...</div>
+<div class="scan" id="scan"></div>
 
 <div class="bottom">
-  <div class="hint glass" id="hint">
-    Point camera at printed artwork
-  </div>
-
-  <button class="shutter" id="shutter"
-    aria-label="Capture" disabled
-    title="Capture coming in next version">
-  </button>
-
+  <div class="hint glass" id="hint">Allow camera access to scan artwork</div>
+  <button class="shutter" disabled aria-label="Capture coming soon"></button>
   <div class="footer">
     MMBS AR EXPERIENCE ·
-    <a href="https://jiliomonm-wq.github.io/htet-wai-naing-portfolio1/">
-      Developer
-    </a>
+    <a href="https://jiliomonm-wq.github.io/htet-wai-naing-portfolio1/">Developer</a>
   </div>
 </div>
 
-<script type="module">
-import * as THREE from
-"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+<script>
+const statusEl = document.getElementById("status");
+const hintEl = document.getElementById("hint");
+const scanEl = document.getElementById("scan");
+const scene = document.querySelector("a-scene");
+const target = document.getElementById("target");
 
-import { MindARThree } from
-"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js";
-
-import { parseGIF, decompressFrames } from
-"https://esm.sh/gifuct-js@2.1.2";
-
-const status = document.getElementById("status");
-const hint = document.getElementById("hint");
-const scanner = document.getElementById("scanner");
-
-function message(text) {
-  status.textContent = text;
+function setStatus(text) {
+  statusEl.textContent = text;
 }
 
-async function loadAnimatedTexture(url) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error("Animation file missing");
+window.addEventListener("error", e => {
+  setStatus("ERROR: " + (e.message || "Unknown error"));
+});
 
-  const buffer = await response.arrayBuffer();
-  const gif = parseGIF(buffer);
-  const frames = decompressFrames(gif, true);
+window.addEventListener("unhandledrejection", e => {
+  setStatus("ERROR: " + (e.reason?.message || "AR initialization failed"));
+});
 
-  const width = gif.lsd.width;
-  const height = gif.lsd.height;
+scene.addEventListener("loaded", () => {
+  setStatus("STARTING CAMERA...");
+});
 
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
+scene.addEventListener("arReady", () => {
+  setStatus("SCAN PRINTED ARTWORK");
+  hintEl.textContent = "Point camera at the printed image";
+});
 
-  const ctx = canvas.getContext("2d");
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
+scene.addEventListener("arError", () => {
+  setStatus("AR CAMERA ERROR");
+  hintEl.textContent = "Check camera permission and refresh";
+});
 
-  let index = 0;
-  let previous = null;
-  let saved = null;
-  let nextTime = 0;
+target.addEventListener("targetFound", () => {
+  setStatus("AR TRACKING ACTIVE");
+  hintEl.textContent = "Artwork is alive!";
+  scanEl.style.opacity = "0";
+});
 
-  function drawFrame(frame) {
-    if (previous) {
-      if (previous.disposalType === 2) {
-        ctx.clearRect(
-          previous.dims.left,
-          previous.dims.top,
-          previous.dims.width,
-          previous.dims.height
-        );
-      } else if (previous.disposalType === 3 && saved) {
-        ctx.putImageData(saved, 0, 0);
-      }
-    }
+target.addEventListener("targetLost", () => {
+  setStatus("SEARCHING FOR ARTWORK");
+  hintEl.textContent = "Point camera at the printed image";
+  scanEl.style.opacity = "1";
+});
 
-    saved = frame.disposalType === 3
-      ? ctx.getImageData(0, 0, width, height)
-      : null;
-
-    const patch = new ImageData(
-      new Uint8ClampedArray(frame.patch),
-      frame.dims.width,
-      frame.dims.height
-    );
-
-    const temp = document.createElement("canvas");
-    temp.width = frame.dims.width;
-    temp.height = frame.dims.height;
-    temp.getContext("2d").putImageData(patch, 0, 0);
-
-    ctx.drawImage(
-      temp,
-      frame.dims.left,
-      frame.dims.top
-    );
-
-    previous = frame;
-    texture.needsUpdate = true;
-  }
-
-  drawFrame(frames[0]);
-
-  return {
-    texture,
-    aspect: width / height,
-    update(time) {
-      if (time < nextTime) return;
-
-      const frame = frames[index];
-      drawFrame(frame);
-
-      nextTime = time + Math.max(frame.delay || 100, 20);
-      index = (index + 1) % frames.length;
-    }
-  };
-}
-
-async function startAR() {
+async function setupAnimation() {
   try {
-    message("LOADING ANIMATION...");
+    const response = await fetch("./animation.gif");
+    if (!response.ok) throw new Error("animation.gif not found");
 
-    const animation =
-      await loadAnimatedTexture("./animation.gif");
+    const blob = await response.blob();
+    const bitmap = await createImageBitmap(blob);
 
-    message("STARTING CAMERA...");
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
 
-    const mindarThree = new MindARThree({
-      container: document.querySelector("#ar-container"),
-      imageTargetSrc: "./targets.mind",
-      maxTrack: 1,
-      uiLoading: "no",
-      uiScanning: "no"
+    const ctx = canvas.getContext("2d");
+    const plane = document.getElementById("animationPlane");
+
+    const texture = new AFRAME.THREE.CanvasTexture(canvas);
+    texture.colorSpace = AFRAME.THREE.SRGBColorSpace;
+
+    plane.addEventListener("object3dset", () => {
+      const mesh = plane.getObject3D("mesh");
+      if (mesh) {
+        mesh.material.map = texture;
+        mesh.material.needsUpdate = true;
+      }
     });
 
-    const { renderer, scene, camera } = mindarThree;
-    const anchor = mindarThree.addAnchor(0);
+    function update() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(bitmap, 0, 0);
+      texture.needsUpdate = true;
+      requestAnimationFrame(update);
+    }
 
-    const geometry = new THREE.PlaneGeometry(
-      1,
-      1 / animation.aspect
-    );
+    update();
 
-    const material = new THREE.MeshBasicMaterial({
-      map: animation.texture,
-      transparent: true,
-      side: THREE.DoubleSide,
-      depthWrite: false
-    });
-
-    const plane = new THREE.Mesh(geometry, material);
-    plane.position.z = 0.01;
-    anchor.group.add(plane);
-
-    anchor.onTargetFound = () => {
-      message("AR TRACKING ACTIVE");
-      hint.textContent = "Artwork is alive!";
-      scanner.style.opacity = "0";
-    };
-
-    anchor.onTargetLost = () => {
-      message("SEARCHING FOR ARTWORK");
-      hint.textContent = "Point camera at printed artwork";
-      scanner.style.opacity = "1";
-    };
-
-    await mindarThree.start();
-
-    message("SCAN PRINTED ARTWORK");
-
-    renderer.setAnimationLoop(() => {
-      animation.update(performance.now());
-      renderer.render(scene, camera);
-    });
-
-  } catch (error) {
-    console.error(error);
-    message("AR ERROR");
-    hint.textContent = error.message;
+  } catch (err) {
+    console.error(err);
+    hintEl.textContent = "Animation error: " + err.message;
   }
 }
 
-startAR();
+setupAnimation();
 </script>
-
 </body>
 </html>
