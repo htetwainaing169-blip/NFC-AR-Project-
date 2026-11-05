@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080b11"><title>MMBS • AR Camera V9</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080b11"><title>MMBS • AR Camera V10</title>
 <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 <style>
@@ -31,6 +31,7 @@ function attachVideoTexture(){
   const mesh=plane.getObject3D('mesh');
   if(!mesh){setTimeout(attachVideoTexture,200);return;}
   const THREE=AFRAME.THREE;
+  if(videoTexture && mesh.material?.map===videoTexture) return;
   if(videoTexture)videoTexture.dispose();
   videoTexture=new THREE.VideoTexture(art);
   videoTexture.minFilter=THREE.LinearFilter;
@@ -40,8 +41,9 @@ function attachVideoTexture(){
   plane.setAttribute('height',String(art.videoHeight/art.videoWidth));
   plane.setAttribute('visible',true);
   videoReady=true;
-  if(found){art.play().then(()=>{$('help').textContent='Animation playing on tracked artwork'}).catch(()=>{$('help').textContent='Tap screen once to enable animation'})}
+  if(found){art.play().catch(()=>{$('help').textContent='Tap screen to enable animation'})}
 }
+AFRAME.registerComponent('mmbs-video-refresh',{tick:function(){if(videoTexture && art.readyState>=2 && !art.paused){videoTexture.needsUpdate=true;} if(found && art.readyState>=2){const t=art.currentTime.toFixed(1);$('help').textContent=art.paused?'Video paused — tap screen to play':'AR VIDEO • '+t+'s / '+(Number.isFinite(art.duration)?art.duration.toFixed(1):'?')+'s';}}});scene.setAttribute('mmbs-video-refresh','');
 art.addEventListener('loadeddata',attachVideoTexture);art.addEventListener('canplay',attachVideoTexture);scene.addEventListener('loaded',attachVideoTexture);
 art.addEventListener('error',()=>{$('help').textContent='animation.mp4 failed to load. Check GitHub filename.';});const error=e=>{console.error(e);status('AR ERROR');$('error').textContent=e?.message||String(e);$('overlay').style.display='flex'};
 $('menuBtn').onclick=()=>{$('menu').style.display=$('menu').style.display==='block'?'none':'block';$('status').style.opacity=$('menu').style.display==='block'?'0':'1'};
@@ -49,7 +51,7 @@ $('photoMode').onclick=()=>{if(recording)return;mode='photo';$('photoMode').clas
 $('videoMode').onclick=()=>{if(recording)return;mode='video';$('videoMode').classList.add('active');$('photoMode').classList.remove('active')};
 scene.addEventListener('arReady',()=>status('SCAN PRINTED ARTWORK'));
 scene.addEventListener('arError',()=>error(new Error('AR camera failed. Check camera permission and HTTPS.')));
-target.addEventListener('targetFound',()=>{found=true;status('AR TRACKING ACTIVE');$('frame').style.opacity='0';attachVideoTexture();art.play().then(()=>{$('help').textContent='Animation playing on tracked artwork'}).catch(e=>{$('help').textContent='Tap once to start animation';console.warn(e)});});
+target.addEventListener('targetFound',()=>{found=true;status('AR TRACKING ACTIVE');$('frame').style.opacity='0';attachVideoTexture();art.play().then(()=>{$('help').textContent='AR video started — checking frames'}).catch(e=>{$('help').textContent='Tap once to start animation';console.warn(e)});});
 target.addEventListener('targetLost',()=>{found=false;status('SCAN PRINTED ARTWORK');$('frame').style.opacity='1';art.pause()});document.addEventListener('pointerdown',()=>{if(found&&art.paused)art.play().catch(()=>{})},{passive:true});
 $('start').onclick=async()=>{try{$('start').disabled=true;$('error').textContent='';status('STARTING CAMERA...');art.load();await art.play().catch(e=>console.warn('Video unlock:',e));if(art.readyState>=2)attachVideoTexture();const ar=scene.systems['mindar-image-system'];if(!ar)throw new Error('MindAR library did not load');await ar.start();fitCamera();attachVideoTexture();started=true;$('overlay').style.display='none';status('SCAN PRINTED ARTWORK')}catch(e){$('start').disabled=false;error(e)}};
 function findCamera(){const vids=[...document.querySelectorAll('video')].filter(v=>v!==art&&v.readyState>=2&&v.videoWidth>0);return vids.find(v=>v.srcObject)||vids[0]}
