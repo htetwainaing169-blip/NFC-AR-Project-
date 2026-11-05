@@ -1,40 +1,362 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080a0d"><title>MMBS AR Camera</title><style>
-*{box-sizing:border-box}html,body{height:100%;margin:0;background:#080a0d;color:#fff;font-family:Inter,system-ui,-apple-system,Arial,sans-serif;overflow:hidden}button{font:inherit;cursor:pointer}button:disabled{opacity:.35}#camera{position:absolute;width:100%;height:100%;object-fit:cover;inset:0;background:#101418}#frame{position:fixed;inset:0;overflow:hidden}.shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.65),transparent 25%,transparent 65%,rgba(0,0,0,.87))}.top{position:absolute;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top) + 16px) 18px 10px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{display:flex;align-items:center;gap:10px}.logo{background:white;width:88px;height:45px;object-fit:contain;border-radius:8px;padding:3px}.brandtext{font-size:10px;letter-spacing:2px;color:#d4d4d4}.round{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:#ffffff21;color:#fff;border:1px solid #ffffff35;font-size:20px;backdrop-filter:blur(12px)}.scan{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:min(70vw,320px);aspect-ratio:4/3;pointer-events:none}.corner{position:absolute;width:28px;height:28px;border-color:#a2e76d;border-style:solid}.tl{left:0;top:0;border-width:3px 0 0 3px;border-radius:9px 0 0 0}.tr{right:0;top:0;border-width:3px 3px 0 0;border-radius:0 9px 0 0}.bl{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 9px}.br{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 9px 0}.hint{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 192px);left:12px;right:12px;text-align:center;font-size:13px;color:#eee;text-shadow:0 1px 8px #000}.bottom{position:absolute;bottom:0;left:0;right:0;padding:12px 24px calc(env(safe-area-inset-bottom) + 23px);display:flex;flex-direction:column;align-items:center;gap:19px}.modes{display:flex;gap:34px;font-size:13px;font-weight:650;letter-spacing:1.5px}.mode{border:0;background:none;color:#a5a5a5;padding:8px}.mode.active{color:#b4f78b;border-bottom:2px solid #b4f78b}.controls{width:100%;display:flex;justify-content:space-between;align-items:center;max-width:450px}.small{width:52px;height:52px;border-radius:15px;border:1px solid #ffffff38;background:#ffffff1c;color:white;font-size:24px;display:grid;place-items:center}.shutter{height:82px;width:82px;border-radius:50%;border:4px solid white;background:transparent;display:grid;place-items:center;padding:6px}.shutter span{width:100%;height:100%;border-radius:50%;background:white;display:block;transition:.2s}.shutter.recording span{background:#ed4747;border-radius:9px;transform:scale(.5)}.status{position:absolute;top:calc(env(safe-area-inset-top) + 85px);left:50%;transform:translateX(-50%);white-space:nowrap;background:#0009;border:1px solid #fff2;padding:9px 14px;border-radius:24px;font-size:12px}.status b{color:#b4f78b}.panel{display:none;position:absolute;inset:0;background:#0b0e13ed;z-index:5;padding:calc(env(safe-area-inset-top) + 32px) 22px 25px;overflow:auto}.panel.open{display:block}.panel h2{font-size:22px}.panel p{line-height:1.65;color:#bbb}.panel a,.action{background:#b4f78b;border:0;color:#172211;padding:13px 18px;border-radius:12px;text-decoration:none;font-weight:700;display:inline-block}.panel .close{float:right;background:#292e36;color:white;border:0;border-radius:12px;padding:10px 16px}.panel img{max-width:100%;border-radius:12px}.pill{display:inline-block;background:#2b3338;padding:7px 11px;border-radius:14px;font-size:12px}.recordtime{color:#ff7777}.sr{position:absolute;left:-9999px}#composite{display:none}
 
-/* MMBS Glass Edition */
-:root{--glass:rgba(255,255,255,.105);--stroke:rgba(255,255,255,.23);--mint:#c5ff9b;--soft:#c5cbd7}
-body{background:#080d12;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
-#frame{isolation:isolate;background:radial-gradient(ellipse at 65% 25%,#263d3b,#0a1118 60%,#080a0d)}
-#camera{filter:saturate(1.08) contrast(1.03)}
-.shade{background:linear-gradient(180deg,rgba(5,12,18,.62),transparent 32%,transparent 57%,rgba(5,9,16,.88) 100%)}
-.top{padding:calc(env(safe-area-inset-top) + 17px) 19px 12px;z-index:2}
-.brand{background:rgba(255,255,255,.10);border:1px solid var(--stroke);border-radius:20px;padding:7px 13px 7px 7px;box-shadow:0 12px 32px #0003,inset 0 1px #ffffff24;backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%)}
-.logo{width:86px;height:39px;border-radius:11px;padding:4px}
-.brandtext{font-size:9px;line-height:1.6;letter-spacing:1.8px;font-weight:650;color:#f6f9fb}
-.round,.small{background:var(--glass);border:1px solid var(--stroke);box-shadow:inset 0 1px #ffffff2b,0 10px 25px #0002;backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%)}
-.round{width:50px;height:50px;border-radius:18px;font-size:21px}
-.scan{top:44%;width:min(76vw,355px);filter:drop-shadow(0 0 12px #aaff9950)}
-.corner{border-color:#c5ff9b;border-width:2px!important;width:36px;height:36px}
-.tl{border-right:0!important;border-bottom:0!important;border-radius:15px 0 0 0}.tr{border-left:0!important;border-bottom:0!important;border-radius:0 15px 0 0}.bl{border-top:0!important;border-right:0!important;border-radius:0 0 0 15px}.br{border-top:0!important;border-left:0!important;border-radius:0 0 15px 0}
-.status{top:calc(env(safe-area-inset-top) + 93px);background:rgba(10,19,24,.37);border:1px solid var(--stroke);box-shadow:inset 0 1px #ffffff20;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);padding:10px 16px;letter-spacing:1.2px;font-size:10px;font-weight:750;max-width:90%;overflow:hidden;text-overflow:ellipsis}
-.status b{color:var(--mint)}
-.hint{bottom:calc(env(safe-area-inset-bottom) + 214px);font-size:12px;color:#eef3f6;letter-spacing:.2px;text-shadow:0 2px 9px #000}
-.bottom{padding:22px 25px calc(env(safe-area-inset-bottom) + 22px);gap:22px;background:linear-gradient(0deg,rgba(9,15,22,.60),transparent);z-index:2}
-.modes{gap:5px;border-radius:999px;border:1px solid var(--stroke);background:rgba(255,255,255,.10);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);padding:5px;box-shadow:inset 0 1px #ffffff20}
-.mode{padding:10px 27px;border-radius:999px;font-size:11px;letter-spacing:1.6px;transition:background .2s,color .2s}
-.mode.active{border:0;background:rgba(226,255,212,.93);color:#1d2b23;box-shadow:0 2px 15px #b5ff9b35}
-.controls{max-width:410px}
-.small{width:58px;height:58px;border-radius:20px;font-size:25px}
-.shutter{width:84px;height:84px;border:3px solid rgba(255,255,255,.88);box-shadow:0 0 0 5px rgba(255,255,255,.09),0 12px 28px #0004;backdrop-filter:blur(10px)}
-.shutter span{background:linear-gradient(145deg,#fff,#dfe9eb);box-shadow:inset 0 2px 4px #ffffff,0 4px 12px #0002}
-.panel{background:rgba(9,16,23,.86);backdrop-filter:blur(38px) saturate(130%);-webkit-backdrop-filter:blur(38px) saturate(130%)}
-.panel h2{font-size:26px;letter-spacing:-.7px}.panel .close{background:rgba(255,255,255,.13);border:1px solid var(--stroke);border-radius:16px}.panel a,.action{background:var(--mint);border-radius:15px}.pill{background:rgba(255,255,255,.12);border:1px solid var(--stroke)}
-@media(min-width:720px){.top,.bottom{left:50%;right:auto;width:min(100%,540px);transform:translateX(-50%)}.scan{max-width:360px}}
-@media(max-height:650px){.hint{bottom:calc(env(safe-area-inset-bottom) + 178px)}.bottom{gap:12px;padding-top:12px}.shutter{width:68px;height:68px}.small{width:48px;height:48px}}
-</style></head><body><div id="frame"><video id="camera" autoplay muted playsinline></video><canvas id="composite"></canvas><div class="shade"></div><div class="top"><div class="brand"><img class="logo" src="mmbs-logo.jpg" alt="MMBS official logo"><div class="brandtext">GLASS AR<br>CAMERA</div></div><button class="round" id="settings" aria-label="Settings">☷</button></div><div class="status" id="status"><b>●</b> CAMERA PREVIEW</div><div class="scan" aria-hidden="true"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></div><div class="hint" id="hint">Point your camera at the printed artwork</div><div class="bottom"><div class="modes"><button class="mode active" id="photoMode">PHOTO</button><button class="mode" id="videoMode">VIDEO</button></div><div class="controls"><button class="small" id="gallery" aria-label="Last capture">▧</button><button class="shutter" id="shutter" aria-label="Capture"><span></span></button><button class="small" id="flip" aria-label="Flip camera">↻</button></div></div><section class="panel" id="panel"><button class="close" id="close">Close ✕</button><h2>MMBS Glass AR Camera</h2><span class="pill">Glass Camera • Test build v3</span><p>This version supports camera preview, photo capture and video recording on compatible browsers. <strong>Image-tracked AR animation is not connected yet.</strong> The AR tracking target must be compiled and integrated next.</p><p>Tap the shutter for a photo or switch to Video to record. Files stay on your device.</p><a href="https://jiliomonm-wq.github.io/htet-wai-naing-portfolio1/" target="_blank" rel="noopener">Contact Developer ↗</a><h3>Print target</h3><img src="print-image.png" alt="Printed artwork"></section></div><script>
-const video=document.getElementById('camera'),canvas=document.getElementById('composite'),ctx=canvas.getContext('2d'),status=document.getElementById('status'),hint=document.getElementById('hint'),shutter=document.getElementById('shutter');let stream,front=false,mode='photo',recorder,parts=[],recording=false,lastUrl,lastName,renderId;
-function message(s){status.textContent=s}async function startCamera(){if(stream)stream.getTracks().forEach(t=>t.stop());try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:front?'user':'environment',width:{ideal:1280},height:{ideal:720}},audio:false});video.srcObject=stream;await video.play();message('● CAMERA READY');hint.textContent='Camera test mode · AR tracking coming next';}catch(e){message('Camera access unavailable');hint.textContent='Allow camera access in your browser settings. '+e.message;}}
-function frame(){if(video.videoWidth){canvas.width=video.videoWidth;canvas.height=video.videoHeight;ctx.drawImage(video,0,0,canvas.width,canvas.height)}renderId=requestAnimationFrame(frame)}function download(blob,name){if(lastUrl)URL.revokeObjectURL(lastUrl);lastUrl=URL.createObjectURL(blob);lastName=name;const a=document.createElement('a');a.href=lastUrl;a.download=name;document.body.append(a);a.click();a.remove();message('Saved / download started');}function photo(){if(!video.videoWidth)return message('Camera not ready');canvas.toBlob(b=>{if(b)download(b,'MMBS-photo-'+Date.now()+'.png')},'image/png')}
-function toggleRecord(){if(recording){recorder.stop();recording=false;shutter.classList.remove('recording');message('Processing video…');return}if(!canvas.captureStream||!window.MediaRecorder){message('Recording unsupported on this browser');return}let capture=canvas.captureStream(24),opts={};for(const m of ['video/mp4','video/webm;codecs=vp9','video/webm']){if(MediaRecorder.isTypeSupported(m)){opts.mimeType=m;break}}try{parts=[];recorder=new MediaRecorder(capture,opts);recorder.ondataavailable=e=>{if(e.data.size)parts.push(e.data)};recorder.onstop=()=>{const ext=(recorder.mimeType||'').includes('mp4')?'mp4':'webm';download(new Blob(parts,{type:recorder.mimeType||'video/webm'}),'MMBS-video-'+Date.now()+'.'+ext);capture.getTracks().forEach(t=>t.stop())};recorder.start(200);recording=true;shutter.classList.add('recording');message('● RECORDING');}catch(e){message('Recording error: '+e.message)}}
-shutter.onclick=()=>mode==='photo'?photo():toggleRecord();function setMode(m){if(recording)return;mode=m;document.getElementById('photoMode').classList.toggle('active',m==='photo');document.getElementById('videoMode').classList.toggle('active',m==='video');message(m==='photo'?'● PHOTO MODE':'● VIDEO MODE')}document.getElementById('photoMode').onclick=()=>setMode('photo');document.getElementById('videoMode').onclick=()=>setMode('video');document.getElementById('flip').onclick=()=>{if(recording)return;front=!front;startCamera()};document.getElementById('gallery').onclick=()=>{if(lastUrl){const a=document.createElement('a');a.href=lastUrl;a.download=lastName;a.click()}else message('No captures yet')};document.getElementById('settings').onclick=()=>document.getElementById('panel').classList.add('open');document.getElementById('close').onclick=()=>document.getElementById('panel').classList.remove('open');startCamera();frame();
-</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MMBS AR Camera</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #080b0e;
+  color: white;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+#ar-container {
+  position: fixed;
+  inset: 0;
+}
+
+#ar-container canvas {
+  display: block;
+}
+
+.glass {
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.32);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 6px 30px rgba(0,0,0,.15);
+}
+
+.header {
+  position: fixed;
+  top: max(18px, env(safe-area-inset-top));
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  border-radius: 22px;
+  pointer-events: auto;
+}
+
+.brand img {
+  width: 68px;
+  background: white;
+  border-radius: 7px;
+}
+
+.brand span {
+  font-size: 12px;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.settings {
+  color: white;
+  text-decoration: none;
+  padding: 15px;
+  border-radius: 50%;
+  pointer-events: auto;
+}
+
+.status {
+  position: fixed;
+  top: 19%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 12px 18px;
+  border-radius: 30px;
+  white-space: nowrap;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.scanner {
+  position: fixed;
+  width: 72vw;
+  height: 54vw;
+  max-height: 40vh;
+  left: 50%;
+  top: 49%;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 22px;
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: 0 0 40px rgba(255,255,255,.05);
+}
+
+.bottom {
+  position: fixed;
+  bottom: max(35px, env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.hint {
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.shutter {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 4px solid white;
+  background: rgba(255,255,255,.18);
+  padding: 6px;
+}
+
+.shutter::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: white;
+  border-radius: 50%;
+}
+
+.footer {
+  font-size: 11px;
+  opacity: .8;
+}
+
+.footer a {
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div id="ar-container"></div>
+
+<header class="header">
+  <div class="brand glass">
+    <img src="./mmbs-logo.jpg" alt="MMBS">
+    <span>GLASS AR<br>CAMERA</span>
+  </div>
+
+  <a class="settings glass"
+     href="https://jiliomonm-wq.github.io/htet-wai-naing-portfolio1/"
+     target="_blank" rel="noopener">
+    ☰
+  </a>
+</header>
+
+<div class="status glass" id="status">
+  INITIALIZING AR...
+</div>
+
+<div class="scanner" id="scanner"></div>
+
+<div class="bottom">
+  <div class="hint glass" id="hint">
+    Point camera at printed artwork
+  </div>
+
+  <button class="shutter" id="shutter"
+    aria-label="Capture" disabled
+    title="Capture coming in next version">
+  </button>
+
+  <div class="footer">
+    MMBS AR EXPERIENCE ·
+    <a href="https://jiliomonm-wq.github.io/htet-wai-naing-portfolio1/">
+      Developer
+    </a>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from
+"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
+import { MindARThree } from
+"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js";
+
+import { parseGIF, decompressFrames } from
+"https://esm.sh/gifuct-js@2.1.2";
+
+const status = document.getElementById("status");
+const hint = document.getElementById("hint");
+const scanner = document.getElementById("scanner");
+
+function message(text) {
+  status.textContent = text;
+}
+
+async function loadAnimatedTexture(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Animation file missing");
+
+  const buffer = await response.arrayBuffer();
+  const gif = parseGIF(buffer);
+  const frames = decompressFrames(gif, true);
+
+  const width = gif.lsd.width;
+  const height = gif.lsd.height;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext("2d");
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+
+  let index = 0;
+  let previous = null;
+  let saved = null;
+  let nextTime = 0;
+
+  function drawFrame(frame) {
+    if (previous) {
+      if (previous.disposalType === 2) {
+        ctx.clearRect(
+          previous.dims.left,
+          previous.dims.top,
+          previous.dims.width,
+          previous.dims.height
+        );
+      } else if (previous.disposalType === 3 && saved) {
+        ctx.putImageData(saved, 0, 0);
+      }
+    }
+
+    saved = frame.disposalType === 3
+      ? ctx.getImageData(0, 0, width, height)
+      : null;
+
+    const patch = new ImageData(
+      new Uint8ClampedArray(frame.patch),
+      frame.dims.width,
+      frame.dims.height
+    );
+
+    const temp = document.createElement("canvas");
+    temp.width = frame.dims.width;
+    temp.height = frame.dims.height;
+    temp.getContext("2d").putImageData(patch, 0, 0);
+
+    ctx.drawImage(
+      temp,
+      frame.dims.left,
+      frame.dims.top
+    );
+
+    previous = frame;
+    texture.needsUpdate = true;
+  }
+
+  drawFrame(frames[0]);
+
+  return {
+    texture,
+    aspect: width / height,
+    update(time) {
+      if (time < nextTime) return;
+
+      const frame = frames[index];
+      drawFrame(frame);
+
+      nextTime = time + Math.max(frame.delay || 100, 20);
+      index = (index + 1) % frames.length;
+    }
+  };
+}
+
+async function startAR() {
+  try {
+    message("LOADING ANIMATION...");
+
+    const animation =
+      await loadAnimatedTexture("./animation.gif");
+
+    message("STARTING CAMERA...");
+
+    const mindarThree = new MindARThree({
+      container: document.querySelector("#ar-container"),
+      imageTargetSrc: "./targets.mind",
+      maxTrack: 1,
+      uiLoading: "no",
+      uiScanning: "no"
+    });
+
+    const { renderer, scene, camera } = mindarThree;
+    const anchor = mindarThree.addAnchor(0);
+
+    const geometry = new THREE.PlaneGeometry(
+      1,
+      1 / animation.aspect
+    );
+
+    const material = new THREE.MeshBasicMaterial({
+      map: animation.texture,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+
+    const plane = new THREE.Mesh(geometry, material);
+    plane.position.z = 0.01;
+    anchor.group.add(plane);
+
+    anchor.onTargetFound = () => {
+      message("AR TRACKING ACTIVE");
+      hint.textContent = "Artwork is alive!";
+      scanner.style.opacity = "0";
+    };
+
+    anchor.onTargetLost = () => {
+      message("SEARCHING FOR ARTWORK");
+      hint.textContent = "Point camera at printed artwork";
+      scanner.style.opacity = "1";
+    };
+
+    await mindarThree.start();
+
+    message("SCAN PRINTED ARTWORK");
+
+    renderer.setAnimationLoop(() => {
+      animation.update(performance.now());
+      renderer.render(scene, camera);
+    });
+
+  } catch (error) {
+    console.error(error);
+    message("AR ERROR");
+    hint.textContent = error.message;
+  }
+}
+
+startAR();
+</script>
+
+</body>
+</html>
